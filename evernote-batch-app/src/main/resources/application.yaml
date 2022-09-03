@@ -1,0 +1,32 @@
+evernote:
+  environment: PRODUCTION
+  remote:
+    sandbox:
+      developertoken: ENC(LkiLCqIXO6yE5EZRFG32yFhAAN0Sq8eVderD4TtASueDWOcumqBVmkV92A0+hZE7unZt3mOkFc63B6dHx6/cTnDlE9gBR8lU3kL9Rtqcc8pJofHmQRFiksvJzZTqFErD5G04fFrAwoIUkDH2d3xoeQ==)
+    production:
+      developertoken: ENC(hwl+rx8/nK2xYRbxXBUPBi6lblF6nFAkh+SMBSMPzRQuxpiyCbg4DW0tLodlYH7au3Fm6oTZZBl0jmtn1FsUk40xw0P3k9HHNpiqOF28sJDxUdXnbr9J4Y3izXVteOod4Xg+k+WDX+B1rbaoCScakQ==)
+spring:
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: '30'
+        order_inserts: 'true'
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    show-sql: 'true'
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    password: ENC(fIEwy2BmSBDfu8/OP60hflNTm//seUbT)
+    username: sudhir
+    testOnBorrow: 'true'
+    url: jdbc:mysql://192.168.1.106:10003/evernotedatasandbox?autoReconnect=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
+#    url: jdbc:mysql://192.168.1.106:10003/evernotedata?autoReconnect=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
+    validationQuery: SELECT 1
+
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+    password: ${ENCRYPTION_CODE}
