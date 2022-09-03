@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="LOGS" value="D:/logs/evernotebatchapp" />
-<!--    <property name="LOGS" value="/logs/evernotebatchapp" />-->
+<!--    <property name="LOGS" value="D:/logs/evernotebatchapp" />-->
+    <property name="LOGS" value="/logs/evernotebatchapp" />
 
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
