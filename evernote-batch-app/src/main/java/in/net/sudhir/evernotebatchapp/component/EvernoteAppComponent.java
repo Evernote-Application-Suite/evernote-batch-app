@@ -10,6 +10,7 @@ import in.net.sudhir.evernotebatchapp.model.NoteDB;
 import in.net.sudhir.evernotebatchapp.model.NotebookDB;
 import in.net.sudhir.evernotebatchapp.model.TagDB;
 import in.net.sudhir.evernotebatchapp.service.DataService;
+import in.net.sudhir.evernotebatchapp.service.EmailSvc;
 import in.net.sudhir.evernotebatchapp.service.EvernoteSvc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,9 @@ public class EvernoteAppComponent {
 
     @Autowired
     private DataService dataService;
+
+    @Autowired
+    private EmailSvc emailSvc;
 
     private static final Logger logger = LoggerFactory.getLogger(EvernoteAppComponent.class);
     public void populateDatabase() {
@@ -93,6 +97,66 @@ public class EvernoteAppComponent {
                 }while(notes.getTotalNotes() > offset);
             });
             logger.info("Total Notes: " + totalNoteCount);
+        } catch (EDAMUserException e) {
+            throw new RuntimeException(e);
+        } catch (EDAMSystemException e) {
+            throw new RuntimeException(e);
+        } catch (TException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void evernoteInformation() {
+        try {
+            StringBuilder mailContent = new StringBuilder("");
+            mailContent.append("******************************************************************************\n");
+            mailContent.append("**************************** NOTEBOOK INFORMATION ****************************\n");
+            mailContent.append("******************************************************************************\n");
+            evernoteSvc.getNoteStore().listNotebooks().forEach(notebook -> {
+                mailContent.append(notebook.getName() + "  -  " + notebook.getGuid() + "\n");
+            });
+            mailContent.append("------------------------------------------------------------------------------\n");
+            mailContent.append("******************************************************************************\n");
+            mailContent.append("**************************** TAG INFORMATION *********************************\n");
+            mailContent.append("******************************************************************************\n");
+            evernoteSvc.getNoteStore().listTags().forEach(tag -> {
+                mailContent.append(tag.getName() + "  -  " + tag.getGuid() + "\n");
+            });
+            mailContent.append("------------------------------------------------------------------------------\n");
+            mailContent.append("******************************************************************************\n");
+            mailContent.append("**************************** NOTE INFORMATION ********************************\n");
+            mailContent.append("******************************************************************************\n");
+            evernoteSvc.getNoteStore().listNotebooks().forEach(notebook -> {
+                mailContent.append("Notebook Name: " + notebook.getName());
+                int offset = 0;
+                int pageSize = 50;
+                int noteCount = 0;
+                NoteFilter filter = new NoteFilter();
+                NoteList notes;
+                filter.setNotebookGuid(notebook.getGuid());
+                offset = 0;
+                noteCount = 0;
+                do{
+                    try {
+                        notes = evernoteSvc.getNoteStore().findNotes(filter, offset, pageSize);
+                        notes.getNotesIterator().forEachRemaining(note -> {
+                            mailContent.append(note.getTitle() + "  -  " + note.getGuid() + "\n");
+                        });
+                        noteCount += notes.getTotalNotes();
+                        offset += noteCount;
+                    } catch (EDAMUserException e) {
+                        throw new RuntimeException(e);
+                    } catch (EDAMSystemException e) {
+                        throw new RuntimeException(e);
+                    } catch (EDAMNotFoundException e) {
+                        throw new RuntimeException(e);
+                    } catch (TException e) {
+                        throw new RuntimeException(e);
+                    }
+                }while(notes.getTotalNotes() > offset);
+            });
+            mailContent.append("------------------------------------------------------------------------------\n");
+            emailSvc.sendEvernoteInformationToEmail(mailContent.toString());
         } catch (EDAMUserException e) {
             throw new RuntimeException(e);
         } catch (EDAMSystemException e) {

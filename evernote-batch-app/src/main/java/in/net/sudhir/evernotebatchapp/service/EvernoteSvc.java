@@ -39,7 +39,7 @@ public class EvernoteSvc {
 
     public EvernoteSvc(Environment environment) {
         try{
-            String env = environment.getProperty("evernote.environment");
+            String env = environment.getProperty("evernote.environment").toUpperCase();
             String developerToken = environment.getProperty("evernote.remote." + env.toLowerCase() + ".developertoken");
             EvernoteService evernoteEnv = EvernoteService.valueOf(env);
             EvernoteAuth evernoteAuth = new EvernoteAuth(evernoteEnv, developerToken);

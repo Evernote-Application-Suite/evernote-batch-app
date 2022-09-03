@@ -33,6 +33,8 @@ public class EvernoteBatchAppApplication {
             if(args.length == 1){
                 if(args[0].equalsIgnoreCase("POPULATE_DATA_FROM_EVERNOTE")){
                     evernoteAppController.populateDatabase();
+                }else if(args[0].equalsIgnoreCase("EVERNOTE_INFORMATION")){
+                    evernoteAppController.evernoteInformation();
                 }
             }
         };
