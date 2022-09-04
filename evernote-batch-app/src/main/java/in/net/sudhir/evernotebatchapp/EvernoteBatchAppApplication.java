@@ -2,7 +2,6 @@ package in.net.sudhir.evernotebatchapp;
 
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import in.net.sudhir.evernotebatchapp.component.EvernoteAppComponent;
-import in.net.sudhir.evernotebatchapp.service.EvernoteSvc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +10,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.core.env.Environment;
 
 @SpringBootApplication
 @EnableEncryptableProperties

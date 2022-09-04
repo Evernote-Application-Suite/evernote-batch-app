@@ -7,8 +7,9 @@ import in.net.sudhir.evernotebatchapp.repository.NotbookDBRepository;
 import in.net.sudhir.evernotebatchapp.repository.NoteDBRepository;
 import in.net.sudhir.evernotebatchapp.repository.TagDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 /***
  Package Name: in.net.sudhir.evernotebatchapp.service
@@ -28,13 +29,47 @@ public class DataService {
     @Autowired
     private NoteDBRepository noteDBRepository;
 
+    private Iterable<NotebookDB> notebooksFromDB;
+    private Iterable<TagDB> tagsFromDB;
+    private Iterable<NoteDB> notesFromDB;
 
+
+    public DataService() {
+
+    }
+
+    @PostConstruct
+    public void postConstruct(){
+        notebooksFromDB = notebookDBRepository.findAll();
+        tagsFromDB = tagDBRepository.findAll();
+        notesFromDB = noteDBRepository.findAll();
+    }
     public void addNotebookToDB(NotebookDB newNotebook) {
-        notebookDBRepository.save(newNotebook);
+        boolean found = false;
+        if(notebooksFromDB != null){
+            for(NotebookDB notebook: notebooksFromDB){
+                if(notebook.getNotebookGuid().equalsIgnoreCase(newNotebook.getNotebookGuid())){
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if(!found)
+            notebookDBRepository.save(newNotebook);
     }
 
     public void addTagToDB(TagDB newTag) {
-        tagDBRepository.save(newTag);
+        boolean found = false;
+        if(tagsFromDB != null){
+            for(TagDB tag: tagsFromDB){
+                if(tag.getTagGuid().equalsIgnoreCase(newTag.getTagGuid())){
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if(!found)
+            tagDBRepository.save(newTag);
     }
 
     public TagDB getTagFromDB(String tagGUID) {
@@ -42,7 +77,17 @@ public class DataService {
     }
 
     public void addNoteToDB(NoteDB newNote) {
-        noteDBRepository.save(newNote);
+        boolean found = false;
+        if(notesFromDB != null){
+            for(NoteDB note: notesFromDB){
+                if(note.getNoteGuid().equalsIgnoreCase(newNote.getNoteGuid())){
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if(!found)
+            noteDBRepository.save(newNote);
     }
 
     public void truncateTables() {

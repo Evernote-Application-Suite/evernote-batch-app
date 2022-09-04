@@ -18,10 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /***
@@ -47,7 +43,6 @@ public class EvernoteAppComponent {
     private static final Logger logger = LoggerFactory.getLogger(EvernoteAppComponent.class);
     public void populateDatabase() {
         try {
-            dataService.truncateTables();
             // Load All Notebooks to Database
             AtomicInteger notebookCounter = new AtomicInteger();
             evernoteSvc.getNoteStore().listNotebooks().forEach(notebook -> {
@@ -109,25 +104,16 @@ public class EvernoteAppComponent {
     public void evernoteInformation() {
         try {
             StringBuilder mailContent = new StringBuilder("");
-            mailContent.append("******************************************************************************\n");
-            mailContent.append("**************************** NOTEBOOK INFORMATION ****************************\n");
-            mailContent.append("******************************************************************************\n");
+            mailContent.append("<html><body><table><tr><th>Notebook Name</th><th>Notebook GUID</th></tr>\n");
             evernoteSvc.getNoteStore().listNotebooks().forEach(notebook -> {
-                mailContent.append(notebook.getName() + "  -  " + notebook.getGuid() + "\n");
+                mailContent.append("<tr><td>" + notebook.getName() + "</td><td>" + notebook.getGuid() + "</td></tr>");
             });
-            mailContent.append("------------------------------------------------------------------------------\n");
-            mailContent.append("******************************************************************************\n");
-            mailContent.append("**************************** TAG INFORMATION *********************************\n");
-            mailContent.append("******************************************************************************\n");
+            mailContent.append("</table><br><br><table><tr><th>Tag Name</th><th>Tag GUID</th></tr>");
             evernoteSvc.getNoteStore().listTags().forEach(tag -> {
-                mailContent.append(tag.getName() + "  -  " + tag.getGuid() + "\n");
+                mailContent.append("<tr><td>" + tag.getName() + "</td><td>" + tag.getGuid() + "</td></tr>");
             });
-            mailContent.append("------------------------------------------------------------------------------\n");
-            mailContent.append("******************************************************************************\n");
-            mailContent.append("**************************** NOTE INFORMATION ********************************\n");
-            mailContent.append("******************************************************************************\n");
+            mailContent.append("</table><br><br><table><tr><th>Note Name</th><th>Note GUID</th><th>Notebook Name</th><th>Notebook GUID</th></tr>");
             evernoteSvc.getNoteStore().listNotebooks().forEach(notebook -> {
-                mailContent.append("Notebook Name: " + notebook.getName());
                 int offset = 0;
                 int pageSize = 50;
                 int noteCount = 0;
@@ -140,7 +126,7 @@ public class EvernoteAppComponent {
                     try {
                         notes = evernoteSvc.getNoteStore().findNotes(filter, offset, pageSize);
                         notes.getNotesIterator().forEachRemaining(note -> {
-                            mailContent.append(note.getTitle() + "  -  " + note.getGuid() + "\n");
+                            mailContent.append("<tr><td>" + note.getTitle() + "</td><td>" + note.getGuid() + "</td>" + "<td>" + notebook.getName() + "</td><td>"+ notebook.getGuid() + "</td></tr>");
                         });
                         noteCount += notes.getTotalNotes();
                         offset += noteCount;
@@ -155,7 +141,7 @@ public class EvernoteAppComponent {
                     }
                 }while(notes.getTotalNotes() > offset);
             });
-            mailContent.append("------------------------------------------------------------------------------\n");
+            mailContent.append("</table><br><br></body></html>");
             emailSvc.sendEvernoteInformationToEmail(mailContent.toString());
         } catch (EDAMUserException e) {
             throw new RuntimeException(e);

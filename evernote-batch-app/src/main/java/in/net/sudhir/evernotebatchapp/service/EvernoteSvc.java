@@ -5,7 +5,6 @@ import com.evernote.auth.EvernoteService;
 import com.evernote.clients.ClientFactory;
 import com.evernote.clients.NoteStoreClient;
 import com.evernote.clients.UserStoreClient;
-import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -13,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 
 /***
  Package Name: in.net.sudhir.evernotebatchapp.service
