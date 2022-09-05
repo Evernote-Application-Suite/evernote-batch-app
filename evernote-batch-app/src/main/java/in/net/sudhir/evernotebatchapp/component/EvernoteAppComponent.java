@@ -85,8 +85,8 @@ public class EvernoteAppComponent {
                 try {
                     logger.info("Current Offset: " + offset);
                     notes = evernoteSvc.getNoteStore().findNotes(filter, offset, pageSize);
-                    logger.info("Current Notes Count : " + notes.getTotalNotes());
-                    notes.getNotesIterator().forEachRemaining(note -> {
+                    logger.info("Current Notes Count : " + notes.getNotes().size());
+                    notes.getNotes().forEach(note -> {
                         NoteDB newNote = new NoteDB();
                         newNote.setNoteGuid(note.getGuid());
                         newNote.setNoteName(note.getTitle());
@@ -95,8 +95,8 @@ public class EvernoteAppComponent {
                         totalNoteCount.getAndIncrement();
                         logger.info("Notes added to DB " + totalNoteCount.get());
                     });
-                    noteCount += notes.getTotalNotes();
-                    offset += noteCount;
+                    noteCount = notes.getNotes().size();
+                    offset += notes.getNotes().size();
                 } catch (EDAMUserException e) {
                     logger.error("Error Occurred: " + e.getMessage());
                 } catch (EDAMSystemException e) {
@@ -106,7 +106,7 @@ public class EvernoteAppComponent {
                 } catch (TException e) {
                     logger.error("Error Occurred: " + e.getMessage());
                 }
-            }while(notes.getTotalNotes() > offset);
+            }while(noteCount < pageSize);
         });
         logger.info("Total Notes: " + totalNoteCount);
     }
