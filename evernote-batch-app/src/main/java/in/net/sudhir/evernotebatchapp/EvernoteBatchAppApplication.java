@@ -32,9 +32,15 @@ public class EvernoteBatchAppApplication {
                     evernoteAppController.populateDatabase();
                 }else if(args[0].equalsIgnoreCase("EVERNOTE_INFORMATION")){
                     evernoteAppController.evernoteInformation();
+                }else if(args[0].equalsIgnoreCase("START_FILE_LOAD_FTP")){
+                    evernoteAppController.initiateFileLoad();
+                }else if(args[0].equalsIgnoreCase("EVERNOTE_UPLOAD_TASK")){
+                    evernoteAppController.uploadToEvernote();
                 }
             }
         };
     }
+
+
 
 }

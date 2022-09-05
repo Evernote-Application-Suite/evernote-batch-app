@@ -3,8 +3,12 @@ evernote:
   remote:
     sandbox:
       developertoken: ENC(LkiLCqIXO6yE5EZRFG32yFhAAN0Sq8eVderD4TtASueDWOcumqBVmkV92A0+hZE7unZt3mOkFc63B6dHx6/cTnDlE9gBR8lU3kL9Rtqcc8pJofHmQRFiksvJzZTqFErD5G04fFrAwoIUkDH2d3xoeQ==)
+      url: https://sandbox.evernote.com
     production:
       developertoken: ENC(hwl+rx8/nK2xYRbxXBUPBi6lblF6nFAkh+SMBSMPzRQuxpiyCbg4DW0tLodlYH7au3Fm6oTZZBl0jmtn1FsUk40xw0P3k9HHNpiqOF28sJDxUdXnbr9J4Y3izXVteOod4Xg+k+WDX+B1rbaoCScakQ==)
+      url: https://www.evernote.com
+#      url: https://www.evernote.com/shard/s12/nl/76136038/d72dfad0-7d58-41b5-b2c9-4ca434abd543/
+    urlpattern: "[url]/shard/[shardId]/nl/[userId]/[noteGuid]/"
 spring:
   jpa:
     properties:
@@ -47,3 +51,17 @@ reporting:
     sendto: sudhir@sudhir.net.in
     subject: evernote inforamtion
     sendfrom: bsudhir6@gmail.com
+
+app:
+  staging:
+#    directory: /data/evernotebatch/staging
+    directory: D:/data/evernotebatch/staging
+  target:
+    ftp:
+      hostname: 192.168.1.103
+      port: 21
+      directory: EvernoteUpload
+      username: sudhir
+      password: ENC(pEjNNsT9BWytWIVyxleEZF4tSuF1MCPD)
+  default:
+    tags: evernote-batch-app;uploaded
