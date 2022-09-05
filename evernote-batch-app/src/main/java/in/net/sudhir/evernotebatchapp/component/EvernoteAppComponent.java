@@ -72,6 +72,7 @@ public class EvernoteAppComponent {
         });
         AtomicInteger totalNoteCount = new AtomicInteger();
         evernoteSvc.getNotebooks().forEach(notebook -> {
+            logger.info("Current Notebook - " + notebook.getName());
             int offset = 0;
             int pageSize = 50;
             int noteCount = 0;
