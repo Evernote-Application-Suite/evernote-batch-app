@@ -5,6 +5,8 @@ import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
 import com.evernote.edam.notestore.NoteFilter;
 import com.evernote.edam.notestore.NoteList;
+import com.evernote.edam.notestore.NoteMetadata;
+import com.evernote.edam.notestore.NotesMetadataList;
 import com.evernote.edam.type.*;
 import com.evernote.thrift.TException;
 import in.net.sudhir.evernotebatchapp.model.*;
@@ -75,12 +77,10 @@ public class EvernoteAppComponent {
             logger.info("Current Notebook - " + notebook.getName());
             int offset = 0;
             int pageSize = 50;
-            int noteCount = 0;
             NoteFilter filter = new NoteFilter();
             NoteList notes = null;
             filter.setNotebookGuid(notebook.getGuid());
             offset = 0;
-            noteCount = 0;
             do{
                 try {
                     logger.info("Current Offset: " + offset);
@@ -96,8 +96,7 @@ public class EvernoteAppComponent {
                             totalNoteCount.getAndIncrement();
                             logger.info("Notes added to DB " + totalNoteCount.get());
                         });
-                        noteCount = notes.getNotes().size();
-                        offset += notes.getNotes().size();
+                        offset += notes.getNotesSize();
                     }
                 } catch (EDAMUserException e) {
                     logger.error("Error Occurred: " + e.getMessage());
@@ -108,7 +107,7 @@ public class EvernoteAppComponent {
                 } catch (TException e) {
                     logger.error("Error Occurred: " + e.getMessage());
                 }
-            }while(noteCount != 0);
+            }while(notes.getTotalNotes() > offset);
         });
         logger.info("Total Notes: " + totalNoteCount);
     }
