@@ -86,17 +86,19 @@ public class EvernoteAppComponent {
                     logger.info("Current Offset: " + offset);
                     notes = evernoteSvc.getNoteStore().findNotes(filter, offset, pageSize);
                     logger.info("Current Notes Count : " + notes.getNotes().size());
-                    notes.getNotes().forEach(note -> {
-                        NoteDB newNote = new NoteDB();
-                        newNote.setNoteGuid(note.getGuid());
-                        newNote.setNoteName(note.getTitle());
-                        newNote.setNotebookGUID(notebook.getGuid());
-                        dataService.addNoteToDB(newNote);
-                        totalNoteCount.getAndIncrement();
-                        logger.info("Notes added to DB " + totalNoteCount.get());
-                    });
-                    noteCount = notes.getNotes().size();
-                    offset += notes.getNotes().size();
+                    if(notes.getNotes().size() != 0){
+                        notes.getNotes().forEach(note -> {
+                            NoteDB newNote = new NoteDB();
+                            newNote.setNoteGuid(note.getGuid());
+                            newNote.setNoteName(note.getTitle());
+                            newNote.setNotebookGUID(notebook.getGuid());
+                            dataService.addNoteToDB(newNote);
+                            totalNoteCount.getAndIncrement();
+                            logger.info("Notes added to DB " + totalNoteCount.get());
+                        });
+                        noteCount = notes.getNotes().size();
+                        offset += notes.getNotes().size();
+                    }
                 } catch (EDAMUserException e) {
                     logger.error("Error Occurred: " + e.getMessage());
                 } catch (EDAMSystemException e) {
@@ -106,7 +108,7 @@ public class EvernoteAppComponent {
                 } catch (TException e) {
                     logger.error("Error Occurred: " + e.getMessage());
                 }
-            }while(noteCount < pageSize);
+            }while(noteCount != 0);
         });
         logger.info("Total Notes: " + totalNoteCount);
     }
