@@ -83,7 +83,9 @@ public class EvernoteAppComponent {
             noteCount = 0;
             do{
                 try {
+                    logger.info("Current Offset: " + offset);
                     notes = evernoteSvc.getNoteStore().findNotes(filter, offset, pageSize);
+                    logger.info("Current Notes Count : " + notes.getTotalNotes());
                     notes.getNotesIterator().forEachRemaining(note -> {
                         NoteDB newNote = new NoteDB();
                         newNote.setNoteGuid(note.getGuid());
