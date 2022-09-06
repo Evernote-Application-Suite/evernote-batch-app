@@ -5,8 +5,6 @@ import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
 import com.evernote.edam.notestore.NoteFilter;
 import com.evernote.edam.notestore.NoteList;
-import com.evernote.edam.notestore.NoteMetadata;
-import com.evernote.edam.notestore.NotesMetadataList;
 import com.evernote.edam.type.*;
 import com.evernote.thrift.TException;
 import in.net.sudhir.evernotebatchapp.model.*;
@@ -14,16 +12,14 @@ import in.net.sudhir.evernotebatchapp.service.DataService;
 import in.net.sudhir.evernotebatchapp.service.EmailSvc;
 import in.net.sudhir.evernotebatchapp.service.EvernoteSvc;
 import in.net.sudhir.evernotebatchapp.service.FileXferSvc;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -331,4 +327,68 @@ public class EvernoteAppComponent {
     }
 
 
+    public void downloadFromEvernote(String notebookName) {
+        Batch downloadFromENBatch = dataService.startBatch("DOWNLOAD_FROM_EVERNOTE");
+        AtomicLong recordsExpected = new AtomicLong(0l);
+        AtomicLong recordsProcessed = new AtomicLong(0l);
+        AtomicLong recordsFailed = new AtomicLong(0l);
+
+        String notebookGuid = evernoteSvc.getNotebookGuid(notebookName);
+        String targetDir = environment.getProperty("app.staging.download.directory") + "/" + notebookName;
+
+        if(notebookGuid != null || !notebookGuid.equalsIgnoreCase("")){
+
+            int offset = 0;
+            int pageSize = 50;
+            NoteFilter filter = new NoteFilter();
+            NoteList notes = null;
+            filter.setNotebookGuid(notebookGuid);
+            offset = 0;
+            do{
+                try {
+                    Files.createDirectories(Paths.get(targetDir));
+                    notes = evernoteSvc.getNoteStore().findNotes(filter, offset, pageSize);
+                    recordsExpected.set(notes.getTotalNotes());
+                    notes.getNotes().forEach(note -> {
+                        note.getResources().forEach(resource -> {
+                            try {
+                                Resource noteResource = evernoteSvc.getNoteStore().getResource(resource.getGuid(), true, false, true, false);
+                                byte[] fileContent = noteResource.getData().getBody();
+                                String[] fileNamePatterns = noteResource.getAttributes().getFileName().split("/");
+                                String fileName =  fileNamePatterns[fileNamePatterns.length - 1];
+                                FileUtils.writeByteArrayToFile(new File(targetDir + "/" +fileName), fileContent);
+                                recordsProcessed.getAndIncrement();
+                            } catch (EDAMUserException e) {
+                                throw new RuntimeException(e);
+                            } catch (EDAMSystemException e) {
+                                throw new RuntimeException(e);
+                            } catch (EDAMNotFoundException e) {
+                                throw new RuntimeException(e);
+                            } catch (TException e) {
+                                throw new RuntimeException(e);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                    });
+                    offset += notes.getNotesSize();
+                } catch (EDAMUserException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                } catch (EDAMSystemException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                } catch (EDAMNotFoundException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                } catch (TException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }while(notes.getTotalNotes() > offset);
+        }
+        dataService.updateBatch(downloadFromENBatch, recordsProcessed.get(), (recordsExpected.get() - recordsProcessed.get()), recordsExpected.get(), new Date(), "COMPLETED");
+    }
+
+    public void downloadToFTPLocation() {
+        fileXferSvc.downloadFiles();
+    }
 }
