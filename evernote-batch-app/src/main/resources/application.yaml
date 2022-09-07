@@ -25,8 +25,8 @@ spring:
     password: ENC(fIEwy2BmSBDfu8/OP60hflNTm//seUbT)
     username: sudhir
     testOnBorrow: 'true'
-    url: jdbc:mysql://192.168.1.106:10003/evernotedatasandbox?autoReconnect=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
-#    url: jdbc:mysql://192.168.1.106:10003/evernotedata?autoReconnect=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
+#    url: jdbc:mysql://192.168.1.106:10003/evernotedatasandbox?autoReconnect=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
+    url: jdbc:mysql://192.168.1.106:10003/evernotedata?autoReconnect=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
     validationQuery: SELECT 1
   mail:
     properties:
