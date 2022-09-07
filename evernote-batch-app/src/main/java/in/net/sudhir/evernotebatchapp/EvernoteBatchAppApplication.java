@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
+@RefreshScope
 @EnableEncryptableProperties
 public class EvernoteBatchAppApplication {
 
@@ -43,7 +45,6 @@ public class EvernoteBatchAppApplication {
                 if(args[0].equalsIgnoreCase("EVERNOTE_DOWNLOAD_TASK")){
                     evernoteAppController.downloadFromEvernote(args[1]);
                 }
-
             }
         };
     }

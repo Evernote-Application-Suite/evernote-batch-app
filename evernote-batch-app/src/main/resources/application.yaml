@@ -1,70 +1,12 @@
-evernote:
-  environment: production
-  remote:
-    sandbox:
-      developertoken: ENC(LkiLCqIXO6yE5EZRFG32yFhAAN0Sq8eVderD4TtASueDWOcumqBVmkV92A0+hZE7unZt3mOkFc63B6dHx6/cTnDlE9gBR8lU3kL9Rtqcc8pJofHmQRFiksvJzZTqFErD5G04fFrAwoIUkDH2d3xoeQ==)
-      url: https://sandbox.evernote.com
-    production:
-      developertoken: ENC(hwl+rx8/nK2xYRbxXBUPBi6lblF6nFAkh+SMBSMPzRQuxpiyCbg4DW0tLodlYH7au3Fm6oTZZBl0jmtn1FsUk40xw0P3k9HHNpiqOF28sJDxUdXnbr9J4Y3izXVteOod4Xg+k+WDX+B1rbaoCScakQ==)
-      url: https://www.evernote.com
-#      url: https://www.evernote.com/shard/s12/nl/76136038/d72dfad0-7d58-41b5-b2c9-4ca434abd543/
-    urlpattern: "[url]/shard/[shardId]/nl/[userId]/[noteGuid]/"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 spring:
-  jpa:
-    properties:
-      hibernate:
-        jdbc:
-          batch_size: '30'
-        order_inserts: 'true'
-    hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.MySQL5Dialect
-    show-sql: 'true'
-  datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver
-    password: ENC(fIEwy2BmSBDfu8/OP60hflNTm//seUbT)
-    username: sudhir
-    testOnBorrow: 'true'
-#    url: jdbc:mysql://192.168.1.106:10003/evernotedatasandbox?autoReconnect=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
-    url: jdbc:mysql://192.168.1.106:10003/evernotedata?autoReconnect=true&useSSL=false&useUnicode=yes&characterEncoding=UTF-8
-    validationQuery: SELECT 1
-  mail:
-    properties:
-      mail:
-        smtp:
-          starttls:
-            enable: 'true'
-          auth: 'true'
-    host: smtp.gmail.com
-    username: bsudhir6@gmail.com
-    password: ENC(5gX2on2dm+cbAPm37IbmS7PrQRAJxizYJrLq/ecxUrg=)
-    port: '587'
-
-jasypt:
-  encryptor:
-    algorithm: PBEWithMD5AndDES
-    iv-generator-classname: org.jasypt.iv.NoIvGenerator
-    password: ${ENCRYPTION_CODE}
-
-reporting:
-  mail:
-    sendto: sudhir@sudhir.net.in
-    subject: evernote inforamtion
-    sendfrom: bsudhir6@gmail.com
-
-app:
-  staging:
-    directory: /data/evernotebatch/staging
-    download.directory: /data/evernotebatch/staging/downloads
-#    directory: D:/data/evernotebatch/staging
-#    download.directory: D:/data/evernotebatch/staging/downloads
-  target:
-    ftp:
-      hostname: 192.168.1.103
-      port: 21
-      directory: EvernoteUpload
-      download.directory: EvernoteDownload
-      username: sudhir
-      password: ENC(pEjNNsT9BWytWIVyxleEZF4tSuF1MCPD)
-  default:
-    tags: evernote-batch-app;uploaded
+  config:
+    import: optional:configserver:http://192.168.1.106:10001/evernote-configs
+  application:
+    name: evernote-batch-app
+  profiles:
+    active: prod
