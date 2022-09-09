@@ -8,6 +8,7 @@ import com.evernote.clients.UserStoreClient;
 import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
+import com.evernote.edam.type.Accounting;
 import com.evernote.edam.type.Notebook;
 import com.evernote.edam.type.Tag;
 import com.evernote.thrift.TException;
@@ -48,6 +49,8 @@ public class EvernoteSvc {
     private List<String> notebookNames;
     private List<String> tagNames;
 
+    private long remainingUploadLimit;
+
     private static final Logger logger = LoggerFactory.getLogger(EvernoteSvc.class);
 
     public EvernoteSvc(Environment environment) {
@@ -66,6 +69,8 @@ public class EvernoteSvc {
                 System.exit(1);
             }
             noteStore = clientFactory.createNoteStoreClient();
+            Accounting accounting = userStore.getUser().getAccounting();
+            remainingUploadLimit = accounting.getUploadLimit();
             shardId = userStore.getUser().getShardId();
             userId = String.valueOf(userStore.getUser().getId());
             populateCollections();

@@ -157,6 +157,7 @@ public class FileXferSvc {
                                 fileInputStream.close();
                                 if(success.get()){
                                     recordsProcessed.getAndIncrement();
+                                    Files.delete(localFile);
                                 }
                             } catch (FileNotFoundException e) {
                                 logger.error("Error Occurred: " + e.getMessage());
@@ -165,6 +166,11 @@ public class FileXferSvc {
                             }
                         });
                     }
+                } catch (IOException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                }
+                try {
+                    Files.delete(localDirectory);
                 } catch (IOException e) {
                     logger.error("Error Occurred: " + e.getMessage());
                 }

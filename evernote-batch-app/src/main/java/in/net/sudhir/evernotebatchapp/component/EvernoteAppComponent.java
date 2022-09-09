@@ -110,15 +110,16 @@ public class EvernoteAppComponent {
 
     public void evernoteInformation() {
         StringBuilder mailContent = new StringBuilder("");
-        mailContent.append("<html><body><table><tr><th>Notebook Name</th><th>Notebook GUID</th></tr>\n");
+        mailContent.append("<html><body> <h1> Current Remaining Upload Limit:" + String.format("%,.2f GB", getGB(evernoteSvc.getRemainingUploadLimit())) + " </h1> <br><br>\n");
+        mailContent.append("<table border=\"1\"><tr><th>Notebook Name</th><th>Notebook GUID</th></tr>\n");
         evernoteSvc.getNotebooks().forEach(notebook -> {
             mailContent.append("<tr><td>" + notebook.getName() + "</td><td>" + notebook.getGuid() + "</td></tr>");
         });
-        mailContent.append("</table><br><br><table><tr><th>Tag Name</th><th>Tag GUID</th></tr>");
+        mailContent.append("</table><br><br><table border=\"1\"><tr><th>Tag Name</th><th>Tag GUID</th></tr>");
         evernoteSvc.getTags().forEach(tag -> {
             mailContent.append("<tr><td>" + tag.getName() + "</td><td>" + tag.getGuid() + "</td></tr>");
         });
-        mailContent.append("</table><br><br><table><tr><th>Note Name</th><th>Note GUID</th><th>Notebook Name</th><th>Notebook GUID</th></tr>");
+        mailContent.append("</table><br><br><table border=\"1\"><tr><th>Note Name</th><th>Note GUID</th><th>Notebook Name</th><th>Notebook GUID</th></tr>");
         evernoteSvc.getNotebooks().forEach(notebook -> {
             int offset = 0;
             int pageSize = 50;
@@ -149,6 +150,13 @@ public class EvernoteAppComponent {
         });
         mailContent.append("</table><br><br></body></html>");
         emailSvc.sendEvernoteInformationToEmail(mailContent.toString());
+    }
+
+    private double getGB(long remainingUploadLimit) {
+        double sizeInKB = remainingUploadLimit / 1024;
+        double sizeInMB = sizeInKB / 1024;
+        double sizeInGB = sizeInMB / 1024;
+        return sizeInGB;
     }
 
     public void initiateFileLoad() {
@@ -224,6 +232,7 @@ public class EvernoteAppComponent {
                                         fileDB.setNoteUrl(noteUrl);
                                         dataService.updateFileDB(fileDB);
                                         dataService.addNoteToDB(newNoteDB);
+                                        Files.delete(file);
                                         logger.info("Note added to Evernote" + newNote.getTitle());
                                         recordsProcessed.getAndIncrement();
                                     } catch (EDAMUserException e) {
@@ -234,6 +243,8 @@ public class EvernoteAppComponent {
                                         logger.error("Error Occurred: " + e.getMessage());
                                     } catch (TException e) {
                                         logger.error("Error Occurred: " + e.getMessage());
+                                    } catch (IOException e) {
+                                        logger.error("Error Occurred: " + e.getMessage());
                                     }
                                 }
                             });
@@ -241,9 +252,14 @@ public class EvernoteAppComponent {
                             logger.error("Error Occurred: " + e.getMessage());
                         }
                     }
+                    try {
+                        Files.delete(directory);
+                    } catch (IOException e) {
+                        logger.error("Error Occurred: " + e.getMessage());
+                    }
                 });
             }else{
-                throw new Exception("Target Directory Does not exist.");
+                logger.error("Target Directory Does not exist.");
             }
         }catch(Exception e){
             logger.error("Exception Occurred: " + e.getMessage());
