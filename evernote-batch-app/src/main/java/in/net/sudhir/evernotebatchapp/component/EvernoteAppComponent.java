@@ -110,7 +110,7 @@ public class EvernoteAppComponent {
 
     public void evernoteInformation() {
         StringBuilder mailContent = new StringBuilder("");
-        mailContent.append("<html><body> <h1> Current Remaining Upload Limit:" + String.format("%,.2f GB", getGB(evernoteSvc.getRemainingUploadLimit())) + " </h1> <br><br>\n");
+        mailContent.append("<html><body> <h1> Upload Limit:" + String.format("%,.2f GB", getGB(evernoteSvc.getRemainingUploadLimit())) + " </h1> <br><br>\n");
         mailContent.append("<table border=\"1\"><tr><th>Notebook Name</th><th>Notebook GUID</th></tr>\n");
         evernoteSvc.getNotebooks().forEach(notebook -> {
             mailContent.append("<tr><td>" + notebook.getName() + "</td><td>" + notebook.getGuid() + "</td></tr>");
