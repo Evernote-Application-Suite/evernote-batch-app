@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface NotbookDBRepository extends CrudRepository<NotebookDB, Long> {
+
+    public NotebookDB findAllByNotebookGuid(String notebookGuid);
 }

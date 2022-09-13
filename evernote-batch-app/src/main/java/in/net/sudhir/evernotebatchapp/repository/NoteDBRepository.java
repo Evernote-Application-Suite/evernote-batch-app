@@ -12,4 +12,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface NoteDBRepository extends CrudRepository<NoteDB, Long> {
+
+    public NoteDB findAllByNoteGuid(String noteGuid);
+    public NoteDB deleteAllByNoteGuid(String noteGuid);
 }

@@ -156,4 +156,18 @@ public class DataService {
     public void updateFileDB(FileDB fileDB) {
         fileDBRepository.save(fileDB);
     }
+
+    public NoteDB getNoteFromDB(String guid) {
+        return noteDBRepository.findAllByNoteGuid(guid);
+    }
+
+    public void deleteNoteFromDB(String guid) {
+        NoteDB noteDB = noteDBRepository.findAllByNoteGuid(guid);
+        noteDBRepository.delete(noteDB);
+    }
+
+    public void deleteNotebookFromDB(String notebookGuid) {
+        NotebookDB notebookDB = notebookDBRepository.findAllByNotebookGuid(notebookGuid);
+        notebookDBRepository.delete(notebookDB);
+    }
 }

@@ -347,7 +347,6 @@ public class EvernoteAppComponent {
         Batch downloadFromENBatch = dataService.startBatch("DOWNLOAD_FROM_EVERNOTE");
         AtomicLong recordsExpected = new AtomicLong(0l);
         AtomicLong recordsProcessed = new AtomicLong(0l);
-        AtomicLong recordsFailed = new AtomicLong(0l);
 
         String notebookGuid = evernoteSvc.getNotebookGuid(notebookName);
         String targetDir = environment.getProperty("app.staging.download.directory") + "/" + notebookName;
@@ -375,15 +374,15 @@ public class EvernoteAppComponent {
                                 FileUtils.writeByteArrayToFile(new File(targetDir + "/" +fileName), fileContent);
                                 recordsProcessed.getAndIncrement();
                             } catch (EDAMUserException e) {
-                                throw new RuntimeException(e);
+                                logger.error("Error Occurred: " + e.getMessage());
                             } catch (EDAMSystemException e) {
-                                throw new RuntimeException(e);
+                                logger.error("Error Occurred: " + e.getMessage());
                             } catch (EDAMNotFoundException e) {
-                                throw new RuntimeException(e);
+                                logger.error("Error Occurred: " + e.getMessage());
                             } catch (TException e) {
-                                throw new RuntimeException(e);
+                                logger.error("Error Occurred: " + e.getMessage());
                             } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                logger.error("Error Occurred: " + e.getMessage());
                             }
                         });
                     });
@@ -397,7 +396,7 @@ public class EvernoteAppComponent {
                 } catch (TException e) {
                     logger.error("Error Occurred: " + e.getMessage());
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    logger.error("Error Occurred: " + e.getMessage());
                 }
             }while(notes.getTotalNotes() > offset);
         }
@@ -406,5 +405,67 @@ public class EvernoteAppComponent {
 
     public void downloadToFTPLocation() {
         fileXferSvc.downloadFiles();
+    }
+
+    public void deleteFromEvernote(String notebookName) {
+        Batch deleteNoteBatch = dataService.startBatch("DELETE_FROM_EVERNOTE");
+        AtomicLong recordsExpected = new AtomicLong(0l);
+        AtomicLong recordsProcessed = new AtomicLong(0l);
+
+        String notebookGuid = evernoteSvc.getNotebookGuid(notebookName);
+
+        if(notebookGuid != null || !notebookGuid.equalsIgnoreCase("")){
+
+            int offset = 0;
+            int pageSize = 50;
+            NoteFilter filter = new NoteFilter();
+            NoteList notes = null;
+            filter.setNotebookGuid(notebookGuid);
+            offset = 0;
+            do{
+                try {
+                    notes = evernoteSvc.getNoteStore().findNotes(filter, offset, pageSize);
+                    recordsExpected.set(notes.getTotalNotes());
+                    notes.getNotes().forEach(note -> {
+                        try {
+                            evernoteSvc.getNoteStore().expungeNote(note.getGuid());
+                            dataService.deleteNoteFromDB(note.getGuid());
+                            recordsProcessed.getAndIncrement();
+                            logger.info("Note has been deleted");
+                        } catch (EDAMUserException e) {
+                            logger.error("Error Occurred: " + e.getMessage());
+                        } catch (EDAMSystemException e) {
+                            logger.error("Error Occurred: " + e.getMessage());
+                        } catch (EDAMNotFoundException e) {
+                            logger.error("Error Occurred: " + e.getMessage());
+                        } catch (TException e) {
+                            logger.error("Error Occurred: " + e.getMessage());
+                        }
+                    });
+                    offset += notes.getNotesSize();
+                } catch (EDAMUserException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                } catch (EDAMSystemException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                } catch (EDAMNotFoundException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                } catch (TException e) {
+                    logger.error("Error Occurred: " + e.getMessage());
+                }
+            }while(notes.getTotalNotes() > offset);
+            try {
+                evernoteSvc.getNoteStore().expungeNotebook(notebookGuid);
+                dataService.deleteNotebookFromDB(notebookGuid);
+            } catch (EDAMUserException e) {
+                logger.error("Error Occurred: " + e.getMessage());
+            } catch (EDAMSystemException e) {
+                logger.error("Error Occurred: " + e.getMessage());
+            } catch (EDAMNotFoundException e) {
+                logger.error("Error Occurred: " + e.getMessage());
+            } catch (TException e) {
+                logger.error("Error Occurred: " + e.getMessage());
+            }
+        }
+        dataService.updateBatch(deleteNoteBatch, recordsProcessed.get(), (recordsExpected.get() - recordsProcessed.get()), recordsExpected.get(), new Date(), "COMPLETED");
     }
 }
