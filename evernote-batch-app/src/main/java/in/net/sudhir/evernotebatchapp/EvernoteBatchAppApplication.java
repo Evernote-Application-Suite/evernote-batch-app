@@ -35,39 +35,39 @@ public class EvernoteBatchAppApplication {
         return args -> {
             if(args.length == 1){
                 if(args[0].equalsIgnoreCase("POPULATE_DATA_FROM_EVERNOTE")){
-                    if(Boolean.getBoolean(environment.getProperty("app.operations.populatedatafromevernote")))
+                    if(Boolean.parseBoolean(environment.getProperty("app.operations.populatedatafromevernote")))
                         evernoteAppController.populateDatabase();
                     else
                         logger.error("Operation turned off.");
                 }else if(args[0].equalsIgnoreCase("EVERNOTE_INFORMATION")){
-                    if(Boolean.getBoolean(environment.getProperty("app.operations.evernoteinformation")))
+                    if(Boolean.parseBoolean(environment.getProperty("app.operations.evernoteinformation")))
                         evernoteAppController.evernoteInformation();
                     else
                         logger.error("Operation turned off.");
                 }else if(args[0].equalsIgnoreCase("START_FILE_LOAD_FTP")){
-                    if(Boolean.getBoolean(environment.getProperty("app.operations.startfileloadftp")))
+                    if(Boolean.parseBoolean(environment.getProperty("app.operations.startfileloadftp")))
                         evernoteAppController.initiateFileLoad();
                     else
                         logger.error("Operation turned off.");
                 }else if(args[0].equalsIgnoreCase("EVERNOTE_UPLOAD_TASK")){
-                    if(Boolean.getBoolean(environment.getProperty("app.operations.evernoteuploadtask")))
+                    if(Boolean.parseBoolean(environment.getProperty("app.operations.evernoteuploadtask")))
                         evernoteAppController.uploadToEvernote();
                     else
                         logger.error("Operation turned off.");
                 }else if(args[0].equalsIgnoreCase("START_FTP_DOWNLOAD_TASK")){
-                    if(Boolean.getBoolean(environment.getProperty("app.operations.startftpdownloadtask")))
+                    if(Boolean.parseBoolean(environment.getProperty("app.operations.startftpdownloadtask")))
                         evernoteAppController.downloadToFTPLocation();
                     else
                         logger.error("Operation turned off.");
                 }
             }else if(args.length == 2){
                 if(args[0].equalsIgnoreCase("EVERNOTE_DOWNLOAD_TASK")){
-                    if(Boolean.getBoolean(environment.getProperty("app.operations.evernotedownloadtask")))
+                    if(Boolean.parseBoolean(environment.getProperty("app.operations.evernotedownloadtask")))
                         evernoteAppController.downloadFromEvernote(args[1]);
                     else
                         logger.error("Operation turned off.");
                 } else if(args[0].equalsIgnoreCase("EVERNOTE_DELETE_TASK")){
-                    if(Boolean.getBoolean(environment.getProperty("app.operations.evernotedeletetask")))
+                    if(Boolean.parseBoolean(environment.getProperty("app.operations.evernotedeletetask")))
                         evernoteAppController.deleteFromEvernote(args[1]);
                     else
                         logger.error("Operation turned off.");
