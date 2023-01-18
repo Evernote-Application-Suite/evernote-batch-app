@@ -468,4 +468,44 @@ public class EvernoteAppComponent {
         }
         dataService.updateBatch(deleteNoteBatch, recordsProcessed.get(), (recordsExpected.get() - recordsProcessed.get()), recordsExpected.get(), new Date(), "COMPLETED");
     }
+
+    public void downloadNoteFromEvernote(String noteGUID) {
+        Batch downloadNoteFromEvernote = dataService.startBatch("EVERNOTE_DOWNLOAD_NOTE_TASK");
+        AtomicLong recordsExpected = new AtomicLong(0l);
+        AtomicLong recordsProcessed = new AtomicLong(0l);
+        String targetDir = environment.getProperty("app.staging.download.directory");
+        try {
+            Note note = evernoteSvc.getNoteStore().getNote(noteGUID, true, true, false, false);
+            recordsExpected.set(note.getResources().size());
+            note.getResources().forEach(resource -> {
+                try {
+                    Resource downloadResource =  evernoteSvc.getNoteStore().getResource(resource.getGuid(), true, false, true, false);
+                    byte[] fileContent = downloadResource.getData().getBody();
+                    String[] fileNamePatterns = downloadResource.getAttributes().getFileName().split("/");
+                    String fileName =  fileNamePatterns[fileNamePatterns.length - 1];
+                    FileUtils.writeByteArrayToFile(new File(targetDir + "/" +fileName), fileContent);
+                    recordsProcessed.incrementAndGet();
+                } catch (EDAMUserException e) {
+                    throw new RuntimeException(e);
+                } catch (EDAMSystemException e) {
+                    throw new RuntimeException(e);
+                } catch (EDAMNotFoundException e) {
+                    throw new RuntimeException(e);
+                } catch (TException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (EDAMUserException e) {
+            throw new RuntimeException(e);
+        } catch (EDAMSystemException e) {
+            throw new RuntimeException(e);
+        } catch (EDAMNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (TException e) {
+            throw new RuntimeException(e);
+        }
+        dataService.updateBatch(downloadNoteFromEvernote, recordsProcessed.get(), (recordsExpected.get() - recordsProcessed.get()), recordsExpected.get(), new Date(), "COMPLETED");
+    }
 }

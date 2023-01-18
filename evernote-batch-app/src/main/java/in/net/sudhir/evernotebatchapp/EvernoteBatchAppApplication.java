@@ -29,6 +29,7 @@ public class EvernoteBatchAppApplication {
 
     private EvernoteBatchCommand command;
     private String notebookName;
+    private String noteGUID;
 
     private static final String populateDataFromEvernoteSwitch= "app.operations.populatedatafromevernote";
     private static final String startFileLoadFtp= "app.operations.startfileloadftp";
@@ -36,6 +37,7 @@ public class EvernoteBatchAppApplication {
     private static final String evernoteUploadTask= "app.operations.evernoteuploadtask";
     private static final String startFtpDownloadTask= "app.operations.startftpdownloadtask";
     private static final String evernoteDownloadTask= "app.operations.evernotedownloadtask";
+    private static final String evernoteDownloadNoteTask= "app.operations.evernotedownloadnotetask";
     private static final String evernoteDeleteTask= "app.operations.evernotedeletetask";
 
     public static void main(String[] args) {
@@ -77,6 +79,12 @@ public class EvernoteBatchAppApplication {
                     }
                     else
                         logger.error("Operation turned off.");
+                } else if(command == EvernoteBatchCommand.EVERNOTE_DOWNLOAD_NOTE_TASK){
+                    if(Boolean.parseBoolean(environment.getProperty(evernoteDownloadNoteTask))){
+                        evernoteAppController.downloadNoteFromEvernote(noteGUID);
+                    }
+                    else
+                        logger.error("Operation turned off.");
                 } else if(command == EvernoteBatchCommand.EVERNOTE_DELETE_TASK){
                     if(Boolean.parseBoolean(environment.getProperty(evernoteDeleteTask))) {
                         evernoteAppController.deleteFromEvernote(notebookName);
@@ -94,6 +102,8 @@ public class EvernoteBatchAppApplication {
             if(command != null){
                 if((command == EvernoteBatchCommand.EVERNOTE_DELETE_TASK) || (command == EvernoteBatchCommand.EVERNOTE_DOWNLOAD_TASK)){
                     notebookName = args[1];
+                }else if((command == EvernoteBatchCommand.EVERNOTE_DOWNLOAD_NOTE_TASK)){
+                    noteGUID = args[1];
                 }
                 return true;
             }
